@@ -2,13 +2,16 @@ package com.anderson.api.dtos;
 
 import java.util.Optional;
 
+import com.anderson.api.enums.PerfilEnum;
+
 
 public class ClienteDTO {
 	
 	private Optional<Long> id = Optional.empty();
 	private String nome;
 	private String email;
-	private String senha;
+	private Optional<String> senha = Optional.empty();
+	private PerfilEnum perfil;
 	private String rua;
 	private String bairro;
 	private String cidade;
@@ -49,13 +52,30 @@ public class ClienteDTO {
 		this.email = email;
 	}
 
-	public String getSenha() {
+
+	public Optional<String> getSenha() {
 		return senha;
 	}
 
-	public void setSenha(String senha) {
+
+
+	public void setSenha(Optional<String> senha) {
 		this.senha = senha;
 	}
+
+
+
+	public PerfilEnum getPerfil() {
+		return perfil;
+	}
+
+
+
+	public void setPerfil(PerfilEnum perfil) {
+		this.perfil = perfil;
+	}
+
+
 
 	public String getRua() {
 		return rua;
@@ -97,11 +117,14 @@ public class ClienteDTO {
 		this.cep = cep;
 	}
 
+
+
 	@Override
 	public String toString() {
-		return "ClienteDTO [id=" + id + ", nome=" + nome + ", email=" + email + ", senha=" + senha + ", rua=" + rua
-				+ ", bairro=" + bairro + ", cidade=" + cidade + ", estado=" + estado + ", cep=" + cep + "]";
+		return "ClienteDTO [id=" + id + ", nome=" + nome + ", email=" + email + ", senha=" + senha + ", perfil="
+				+ perfil + ", rua=" + rua + ", bairro=" + bairro + ", cidade=" + cidade + ", estado=" + estado
+				+ ", cep=" + cep + "]";
 	}
-	
-	
+
+
 }

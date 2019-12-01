@@ -11,38 +11,39 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.anderson.api.controllers.ClientesController;
-import com.anderson.api.entities.Cliente;
-import com.anderson.api.repositories.ClientesRepository;
+import com.anderson.api.entities.Produto;
+import com.anderson.api.repositories.ProdutosRepository;
 
 @Service
-public class ClienteService {
+public class ProdutoService {
 	
 	private static final Logger log = LoggerFactory.getLogger(ClientesController.class);
 
 	@Autowired
-	private ClientesRepository clientes;
+	private ProdutosRepository produtos;
 	
 
-	public Cliente persistir(Cliente cliente) {
-		return clientes.save(cliente);
+	public Produto persistir(Produto produto) {
+		return produtos.save(produto);
 	}
 	
-	public List<Cliente> buscarTodos() {
-		return clientes.findAll();
+	public List<Produto> buscarTodos() {
+		return produtos.findAll();
 	}
 	
 
 	public void remover(Long id) {
-		clientes.deleteById(id);
+		produtos.deleteById(id);
 	}
 
-	public Optional<Cliente> buscarPorId(Long id) {
-		return clientes.findById(id);
+	public Optional<Produto> buscarPorId(Long id) {
+		return produtos.findById(id);
+	}
+	
+	public Page<Produto> buscarTodosProdutos(PageRequest pageRequest) {
+		log.info("Buscando todos Produto");
+		return this.produtos.findAll(pageRequest);
 	}
 
-	public Page<Cliente> buscarTodosCliente(PageRequest pageRequest) {
-		log.info("Buscando todos Clientes");
-		return this.clientes.findAll(pageRequest);
-	}
 	
 }

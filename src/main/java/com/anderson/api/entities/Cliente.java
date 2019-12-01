@@ -2,17 +2,25 @@ package com.anderson.api.entities;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+
+import com.anderson.api.enums.PerfilEnum;
 
 
 @Entity
@@ -26,9 +34,13 @@ public class Cliente implements Serializable {
 	private Long id;
 	@NotBlank(message = "Nome é obrigatório")
 	private String nome;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "perfil", nullable = false)
+	private PerfilEnum perfil;
 	@NotBlank(message = "E-mail é obrigatório")
 	@Email(message = "E-mail inválido")
 	private String email;
+	@NotBlank(message = "Senha é obrigatória")
 	private String senha;
 	private String rua;
 	private String bairro;
@@ -36,12 +48,11 @@ public class Cliente implements Serializable {
 	private String estado;
 	private String cep;
 	@Column(name = "data_criacao", nullable = false)
-
 	private Date dataCriacao;
 	@Column(name = "data_atualizacao", nullable = false)
-
 	private Date dataAtualizacao;
-	
+	@OneToMany(mappedBy = "cliente", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	private List<Pedido> pedidos;
 	
 	
 	public Cliente() {
@@ -132,6 +143,21 @@ public class Cliente implements Serializable {
 	}
 
 
+	public PerfilEnum getPerfil() {
+		return perfil;
+	}
+
+
+	public void setPerfil(PerfilEnum perfil) {
+		this.perfil = perfil;
+	}
+
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+
 	public Date getDataCriacao() {
 		return dataCriacao;
 	}
@@ -153,6 +179,16 @@ public class Cliente implements Serializable {
 
 
 	
+	public List<Pedido> getPedidos() {
+		return pedidos;
+	}
+
+
+	public void setPedidos(List<Pedido> pedidos) {
+		this.pedidos = pedidos;
+	}
+
+
 	@PreUpdate
     public void preUpdate() {
         dataAtualizacao = new Date();
@@ -165,13 +201,13 @@ public class Cliente implements Serializable {
         dataAtualizacao = atual;
     }
     
-    
 
 	@Override
 	public String toString() {
 		return "Cliente [id=" + id + ", nome=" + nome + ", email=" + email + ", senha=" + senha + ", rua=" + rua
-				+ ", bairro=" + bairro + ", cidade=" + cidade + ", estado=" + estado + ", cep=" + cep + ", dataCriacao="
-				+ dataCriacao + ", dataAtualizacao=" + dataAtualizacao + "]";
+				+ ", bairro=" + bairro + ", cidade=" + cidade + ", estado=" + estado + ", cep=" + cep + ", perfil="
+				+ perfil + ", dataCriacao=" + dataCriacao + ", dataAtualizacao=" + dataAtualizacao + ", pedidos="
+				+ pedidos + "]";
 	}
 
 

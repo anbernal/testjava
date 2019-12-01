@@ -1,7 +1,6 @@
 package com.anderson.api.controllers;
 
 import java.text.ParseException;
-import java.util.List;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -10,6 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
@@ -20,13 +22,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.anderson.api.dtos.ClienteDTO;
 import com.anderson.api.entities.Cliente;
 import com.anderson.api.response.Response;
 import com.anderson.api.service.ClienteService;
-
+import com.anderson.api.utils.PasswordUtils;
 
 @RestController
 @RequestMapping("/api/clientes")
@@ -45,17 +48,27 @@ public class ClientesController {
 		
 	}
 	
-	
-	
 	/**
-	 * Retorna a listagem de cliente.
+	 * Retorna a listagem de cliente
 	 * '
 	 * 
-	 * 
+	 * @return ResponseEntity<Response<ClienteDto>>
 	 */
+	@SuppressWarnings("deprecation")
 	@GetMapping
-	public List<Cliente> listar() {
-		return clienteService.buscarTodos();
+	public ResponseEntity<Response<Page<ClienteDTO>>> listarTodosClientes(
+			@RequestParam(value = "pag", defaultValue = "0") int pag,
+			@RequestParam(value = "ord", defaultValue = "id") String ord,
+			@RequestParam(value = "dir", defaultValue = "DESC") String dir) {
+		log.info("Buscando todos Clientes, página: {}", pag);
+		Response<Page<ClienteDTO>> response = new Response<Page<ClienteDTO>>();
+
+		PageRequest pageRequest = new PageRequest(pag, this.qtdPorPagina, Direction.valueOf(dir), ord);
+		Page<Cliente> clientes = this.clienteService.buscarTodosCliente(pageRequest);
+		Page<ClienteDTO> clienteDTO = clientes.map(cliente -> this.converterClienteDTO(cliente));
+
+		response.setData(clienteDTO);
+		return ResponseEntity.ok(response);
 	}
 
 	/**
@@ -96,9 +109,13 @@ public class ClientesController {
 		Cliente cliente = this.converterDTOParaCliente(clienteDTO, result);
 
 		if (result.hasErrors()) {
-			log.error("Erro validando lançamento: {}", result.getAllErrors());
+			log.error("Erro validando cliente: {}", result.getAllErrors());
 			result.getAllErrors().forEach(error -> response.getErrors().add(error.getDefaultMessage()));
 			return ResponseEntity.badRequest().body(response);
+		}
+		
+		if (clienteDTO.getSenha().isPresent()) {
+			cliente.setSenha(PasswordUtils.gerarBCrypt(clienteDTO.getSenha().get()));
 		}
 
 		cliente = this.clienteService.persistir(cliente);
@@ -126,6 +143,10 @@ public class ClientesController {
 			log.error("Erro validando lançamento: {}", result.getAllErrors());
 			result.getAllErrors().forEach(error -> response.getErrors().add(error.getDefaultMessage()));
 			return ResponseEntity.badRequest().body(response);
+		}
+		
+		if (clienteDTO.getSenha().isPresent()) {
+			cliente.setSenha(PasswordUtils.gerarBCrypt(clienteDTO.getSenha().get()));
 		}
 
 		cliente = this.clienteService.persistir(cliente);
@@ -169,9 +190,9 @@ public class ClientesController {
 			
 	
 		if (clienteDTO.getId().isPresent()) {
-			Optional<Cliente> lanc = this.clienteService.buscarPorId(clienteDTO.getId().get());
-			if (lanc.isPresent()) {
-				cliente = lanc.get();
+			Optional<Cliente> cli = this.clienteService.buscarPorId(clienteDTO.getId().get());
+			if (cli.isPresent()) {
+				cliente = cli.get();
 			} else {
 				result.addError(new ObjectError("cliente", "Cliente não encontrado."));
 			}
@@ -179,7 +200,8 @@ public class ClientesController {
 		
 		cliente.setNome(clienteDTO.getNome());
 		cliente.setEmail(clienteDTO.getEmail());
-		cliente.setSenha(clienteDTO.getSenha());
+		//cliente.setSenha(clienteDTO.getSenha());
+		cliente.setPerfil(clienteDTO.getPerfil());
 		cliente.setRua(clienteDTO.getRua());
 		cliente.setBairro(clienteDTO.getBairro());
 		cliente.setCidade(clienteDTO.getCidade());
@@ -203,7 +225,7 @@ public class ClientesController {
 		clienteDTO.setId(Optional.of(cliente.getId()));
 		clienteDTO.setNome(cliente.getNome());
 		clienteDTO.setEmail(cliente.getEmail());
-		clienteDTO.setSenha(cliente.getSenha());
+		clienteDTO.setPerfil(cliente.getPerfil());
 		clienteDTO.setRua(cliente.getRua());
 		clienteDTO.setBairro(cliente.getBairro());
 		clienteDTO.setCidade(cliente.getCidade());

@@ -1,8 +1,9 @@
 CREATE TABLE `cliente` (
-  `id` bigint(20) NOT NULL,
+  `id` bigint(20) NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `nome` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
   `senha` varchar(255) NOT NULL,
+  `perfil` varchar(255) NOT NULL,
   `rua` varchar(255),
   `bairro` varchar(255),
   `cidade` varchar(255),
@@ -12,17 +13,14 @@ CREATE TABLE `cliente` (
   `data_criacao` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Indexes for table `cliente`
---
-ALTER TABLE `cliente`
-  ADD PRIMARY KEY (`id`);
   
 --
 -- AUTO_INCREMENT for table `cliente`
 --
 ALTER TABLE `cliente`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;  
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT; 
+  
+
   
   
   

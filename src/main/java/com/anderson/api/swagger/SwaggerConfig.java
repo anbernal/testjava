@@ -24,7 +24,7 @@ public class SwaggerConfig {
 	}
 
 	private ApiInfo apiInfo() {
-		return new ApiInfoBuilder().title("Swagger API")
+		return new ApiInfoBuilder().title("Desafio GPI")
 				.description("Documentação da API - Desafio de cadastro de produtos").version("1.0").build();
 	}
 
